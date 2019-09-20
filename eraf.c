@@ -216,6 +216,11 @@ void displayAutomata(automata *A)
     }
 }
 
+int isAlphabet(char c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
+}
+
 automata *reToAfn(char *regex)
 {
     ptno P = NULL;
@@ -299,11 +304,6 @@ int prior(char c)
     case '*':
         return 4;
     }
-}
-
-int isAlphabet(char c)
-{
-    return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
 }
 
 void convert(char *infix, char *npr)
