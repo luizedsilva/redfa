@@ -1,6 +1,7 @@
 /*--------------------------------------------------
  * Convert Regex to Nondeterminitic Finite Automata
  * Use + to union, . to concat and * to kleene closure
+ * By Luiz Eduardo da Silva
  *---------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +9,7 @@
 #include <string.h>
 
 #define TAM 100
-#define EPSILON ' '
+#define EPSILON '.'
 
 //Automata Structure
 //-------------------------
@@ -167,7 +168,7 @@ automata *buildDot(automata *A, automata *B)
             L = L->next;
         }
     }
-    insertLink(newA->transitions + A->nStates, EPSILON, A->nStates + 1);    
+    insertLink(newA->transitions + A->nStates, EPSILON, A->nStates + 1);
     for (i = 0; i < B->nStates; i++)
     {
         struct link *L = B->transitions[i];
@@ -180,7 +181,6 @@ automata *buildDot(automata *A, automata *B)
     insertLink(newA->transitions + newA->nStates - 2, EPSILON, newA->nStates - 1);
     return newA;
 }
-
 
 void disposeAutomata(automata *A)
 {
@@ -216,6 +216,7 @@ void displayAutomata(automata *A)
     }
 }
 
+// functions to convertion regex to regex in npr
 int prior(char c)
 {
     switch (c)
@@ -289,69 +290,90 @@ void addDot(char *in, char *out)
     out[j] = 0;
 }
 
-// void geraAFN (char *er) {
-//     pilha P;
-//     int i;
-//     char c;
-//     char afn1[TAM], afn2[TAM], str[TAM];
-//     iniciaPilha (&P);
-//     for (i = 0; er[i]; i++) {
-//         c = tolower(er[i]);
-//         if (isAlphabet(c)) {
-//             printf ("Gera AFN %c\n", c);
-//             sprintf (afn1, "af(%c)", c);
-//             empilha (&P, afn1);
-//         }
-//         if (c == '*') {
-//             desempilha(&P, afn1);
-//             printf ("Gera AFN estrela %s\n", afn1);
-//             sprintf (str, "af*(%s)", afn1);
-//             empilha (&P, str);
-//         }
-//         if (c == '.') {
-//             desempilha(&P, afn2);
-//             desempilha(&P, afn1);
-//             printf ("Gera AFN ponto %s %s\n", afn1, afn2);
-//             sprintf (str, "af.(%s, %s)", afn1, afn2);
-//             empilha (&P, str);
-//         }
-//         if (c == '+') {
-//             desempilha(&P, afn2);
-//             desempilha(&P, afn1);
-//             printf ("Gera AFN mais %s %s\n", afn1, afn2);
-//             sprintf (str, "af+(%s, %s)", afn1, afn2);
-//             empilha (&P, str);
-//         }
-//     }
-//     desempilha(&P, afn1);
-//     printf ("RESULTADO %s\n", afn1);
-// }
+automata *reToAfn(char *regex)
+{
+    ptno P = NULL;
+    automata *A, *B, *C;
+    int i;
+    char c;
+    for (i = 0; regex[i]; i++)
+    {
+        c = tolower(regex[i]);
+        if (isAlphabet(c))
+        {
+            A = buildBasic(c);
+            push(&P, A);
+        }
+        if (c == '*')
+        {
+            A = pop(&P);
+            B = buildStar(A);
+            push(&P, B);
+            disposeAutomata(A);
+        }
+        if (c == '.')
+        {
+            B = pop(&P);
+            A = pop(&P);
+            C = buildDot(A, B);
+            push(&P, C);
+            disposeAutomata(A);
+            disposeAutomata(B);
+        }
+        if (c == '+')
+        {
+            B = pop(&P);
+            A = pop(&P);
+            C = buildPlus(A, B);
+            push(&P, C);
+            disposeAutomata(A);
+            disposeAutomata(B);
+        }
+    }
+    return pop(&P);
+}
+
+void saveDotFile(automata *A, char *name)
+{
+    int i;
+    FILE *file = fopen(name, "wt");
+    fprintf(file,"digraph NFA {\n\trankdir=LR\n");
+    fprintf(file,"\tstart [shape=point]\n");
+    for (i = 0; i < A->nStates - 1; i++)
+        fprintf(file,"\ts%d [shape=circle]\n", i);
+    fprintf(file,"\ts%d [shape=doublecircle]\n", A->nStates - 1);
+    fprintf(file,"\tstart -> s0\n");
+    for (i = 0; i < A->nStates; i++)
+    {
+        struct link *L = A->transitions[i];
+        while (L)
+        {
+            if (L->symbol == EPSILON)
+                fprintf(file,"\ts%d -> s%d [label = <&#949;>]\n", i, L->state);
+            else
+                fprintf(file,"\ts%d -> s%d [label = %c]\n", i, L->state, L->symbol);
+            L = L->next;
+        }
+    }
+    fprintf(file,"}\n");
+    fclose(file);
+}
 
 int main(int argc, char **argv)
 {
 
-    char input[TAM], inputDot[TAM], output[TAM];
-
-    automata *A = buildBasic('a');
-    displayAutomata(A);
-    automata *B = buildBasic('b');
-    displayAutomata(B);
-    automata *Dot = buildDot (A, B);
-    displayAutomata (Dot);
-    automata *Union = buildPlus (A, B);
-    displayAutomata(Union);
-    automata *AStar = buildStar(Union);
-    displayAutomata(AStar);
-    automata *dotB = buildDot (AStar, B);
-    displayAutomata(dotB);
-
-    return 0;
-
-    scanf("%s", input);
-    addDot(input, inputDot);
-    puts(inputDot);
+    char inputDot[TAM], output[TAM], command[TAM];
+    //scanf("%s", input);
+    if (argc < 2) return 1;
+    addDot(argv[1], inputDot);
+    //puts(inputDot);
     convert(inputDot, output);
-    printf("Expressao Infixa de input = %s, NPR = %s\n\n", input, output);
-    // geraAFN(output);
+    //printf("Expressao Infixa de input = %s, NPR = %s\n\n", input, output);
+    automata *A = reToAfn(output);
+    displayAutomata(A);
+    saveDotFile(A, "afn.dot");
+    sprintf(command,"dot -Tpng afn.dot -o afn.png");
+    system(command);
+    system("eog afn.png&");
     return (EXIT_SUCCESS);
 }
