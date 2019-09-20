@@ -28,7 +28,7 @@ ptno pop (ptno T, char *c) {
         ptno n = T;
         *c = T->info;
         T = T->next;
-        free n;
+        free (n);
     }
     return T;
 }
