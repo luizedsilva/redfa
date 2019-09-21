@@ -70,7 +70,8 @@ automata *pop(ptno *T)
         free(n);
         return A;
     }
-    return NULL;
+    puts("Stack underflow!");
+    exit(1);
 }
 
 //Automata Functions
@@ -363,13 +364,19 @@ void addDot(char *in, char *out)
 int main(int argc, char **argv)
 {
     char inputDot[TAM], output[TAM];
-    if (argc < 2) return 1;
+    automata *A;
+    if (argc < 2) {
+        printf ("Translate Regular Expression on Nondeterministic Finite Automata\n");
+        printf ("\nUse:%s <RegEx>\n\twhere Regex = Number|Letter|+|*\n", argv[0]);
+        printf ("\tExample: %s \"1(1+0)*0\"\n", argv[0]);
+        return 1;
+    }
     addDot(argv[1], inputDot);
     convert(inputDot, output);
-    automata *A = reToAfn(output);
+    A = reToAfn(output);
     displayAutomata(A);
     saveDotFile(A, "afn.dot");
     system("dot -Tpng afn.dot -o afn.png");
     system("eog afn.png&");
-    return (EXIT_SUCCESS);
+    return 0;
 }
