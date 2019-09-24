@@ -116,17 +116,18 @@ int main(int argc, char **argv)
     D = nfaToDfa(N);
     //displayDfaAutomata(D);
     Dmin = minimize (D);
+    //displayDfaAutomata (Dmin);
 
 
     // NFA dot and png files creation
     saveNfaDotFile(N, "afn.dot");
     system("dot -Tpng afn.dot -o afn.png");
-    //system("eog afn.png&");
+    system("eog afn.png&");
 
     // DFA dot and png files creation
-    saveDfaDotFile(Dmin, "afd.dot");
+    saveDfaDotFile(D, "afd.dot");
     system("dot -Tpng afd.dot -o afd.png");
-    //system("eog afd.png&");
+    system("eog afd.png&");
 
     saveDfaDotFile(Dmin, "afdmin.dot");
     system("dot -Tpng afdmin.dot -o afdmin.png");

@@ -123,7 +123,7 @@ dfaState *getDfaStates(nfa *N, int *num)
     DEBUG(printSet(state, 'i');
           printf(" final = %d\n", final);)
     sigma = sigma->next; // skip EPSILON symbol
-    insertState(&D, state, final);
+    insertState(&D, state, final, 1);
     push(&Stack, state);
     *num = 1;
     while (Stack)
@@ -148,7 +148,7 @@ dfaState *getDfaStates(nfa *N, int *num)
                 final = inSet(N->nStates - 1, newUnion);
                 DEBUG(printSet(newUnion, 'i');
                       printf(" final = %d\n", final);)
-                insertState(&D, newUnion, final);
+                insertState(&D, newUnion, final, 0);
                 (*num)++;
                 push(&Stack, newUnion);
             }
@@ -230,7 +230,8 @@ dfa *minimize(dfa *D)
     dfa *Dmin = malloc(sizeof(dfa));
     int nStates = D->nStates;
     int nSymbols = D->nSymbols;
-    dfaState *st = D->states;
+    dfaState *L, *st = D->states;
+    set *state;
     int *transitions = malloc(nStates * sizeof(int));
     int *groups = malloc(nStates * sizeof(int));
     int *diff = malloc(nStates * sizeof(int));
@@ -247,26 +248,19 @@ dfa *minimize(dfa *D)
     {
         changed = 0;
         //Group separation
-        printf("%9c", ' ');
-        for (i = 0; i < nSymbols; i++)
-            printf("%4c", D->sigma[i]);
-        printf("\n");
         for (i = 0; i < nStates; i++)
         {
-            printf("G%-3d %3d:", groups[i], i);
             transitions[i] = 0;
             for (j = 0; j < nSymbols; j++)
             {
                 int group = groups[D->transitions[i * nSymbols + j]];
                 transitions[i] = 10 * transitions[i] + group;
             }
-            printf("%d\n", transitions[i]);
         }
         //Group division
         countGroups = nGroups;
         for (k = 0; k < nGroups; k++)
         {
-            printf("grupo = %d\n", k);
             nDiff = 0;
             for (i = 0; i < nStates; i++)
             {
@@ -277,42 +271,48 @@ dfa *minimize(dfa *D)
                         if (diff[j] == transitions[i])
                             ehDiff = 0;
                     if (ehDiff)
-                    {
-                        diff[nDiff] = transitions[i];
-                        printf("diff[%d] = %d\n", nDiff, diff[nDiff]);
-                        nDiff++;
-                    }
+                        diff[nDiff++] = transitions[i];
                 }
             }
             if (nDiff > 1)
             {
                 changed = 1;
-                for (j = 1; j < nDiff; j++)
-                {
+                for (j = 1; j < nDiff; j++, countGroups++)
                     for (i = 0; i < nStates; i++)
-                    {
                         if (groups[i] == k && diff[j] == transitions[i])
-                        {
                             groups[i] = countGroups;
-                            printf("groups[%d] = %d\n", i, groups[i]);
-                        }
-                    }
-                    countGroups++;
-                }
-            }
-            for (i = 0; i < nStates; i++)
-            {
-                printf("st:%d gr:%d\n", i, groups[i]);
             }
         }
         nGroups = countGroups;
     }
     Dmin->nStates = nGroups;
     Dmin->nSymbols = nSymbols;
-    Dmin->sigma = malloc(nSymbols * sizeof(char));
+    Dmin->sigma = malloc(nSymbols * sizeof(char)+1);
     for (i = 0; i < nSymbols; i++)
         Dmin->sigma[i] = D->sigma[i];
+    Dmin->sigma[i] = 0;
     Dmin->transitions = malloc(Dmin->nStates * Dmin->nSymbols * sizeof(int));
+    st = NULL;
+    for (i = 0; i < nGroups; i++) {
+        int final = 0;
+        int initial = 0;
+        L = D->states;
+        j = 0;
+        state = NULL;
+        while (L) {
+            if (groups[j] == i) {
+               insertSet(&state, j);
+               if (L->final)
+                  final = 1;
+               if (!j)
+                  initial = 1;
+            }
+            L = L->next;
+            j++;
+        }
+        insertState (&st, state, final, initial);
+    }
+    Dmin->states = st;
     for (i = 0; i < nGroups; i++)
         for (j = 0; j < nSymbols; j++)
         {
@@ -325,7 +325,7 @@ dfa *minimize(dfa *D)
 
 void saveDfaDotFile(dfa *A, char *name)
 {
-    int i, j;
+    int i, j, initial;
     FILE *file = fopen(name, "wt");
     dfaState *st = A->states;
     fprintf(file, "digraph DFA {\n\trankdir=LR\n");
@@ -337,10 +337,12 @@ void saveDfaDotFile(dfa *A, char *name)
             fprintf(file, "\ts%d [shape=doublecircle]\n", i);
         else
             fprintf(file, "\ts%d [shape=circle]\n", i);
+        if (st->initial)
+           initial = i;
         st = st->next;
         i++;
     }
-    fprintf(file, "\tinitial -> s0\n");
+    fprintf(file, "\tinitial -> s%d\n", initial);
     for (i = 0; i < A->nStates; i++)
         for (j = 0; j < A->nSymbols; j++)
             fprintf(file, "\ts%d -> s%d [label = %c]\n", i, A->transitions[i * A->nSymbols + j], A->sigma[j]);

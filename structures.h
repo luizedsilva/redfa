@@ -38,11 +38,12 @@ typedef struct
 typedef struct dfaState
 {
     int final;
+    int initial;
     set *nfaStates;
     struct dfaState *next;
 } dfaState;
 
-void insertState(dfaState **D, set *S, int final)
+void insertState(dfaState **D, set *S, int final, int initial)
 {
     dfaState *st, *cur = *D, *prev = NULL;
     while (cur)
@@ -56,6 +57,7 @@ void insertState(dfaState **D, set *S, int final)
     }
     st = malloc(sizeof(dfaState));
     st->final = final;
+    st->initial = initial;
     st->nfaStates = S;
     if (prev)
         prev->next = st;
