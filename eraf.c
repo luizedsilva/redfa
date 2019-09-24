@@ -10,6 +10,7 @@
 
 #define TAM 100
 #define EPSILON '.'
+#define DEBUG(x)
 
 #include "set.c"
 #include "stack.c"
@@ -95,7 +96,7 @@ int main(int argc, char **argv)
 {
     char inputDot[TAM], output[TAM];
     nfa *N;
-    dfa *D;
+    dfa *D, *Dmin;
     if (argc < 2)
     {
         printf("Translate Regular Expression on Nondeterministic Finite Automata\n");
@@ -105,25 +106,31 @@ int main(int argc, char **argv)
     }
     // Regex convertion
     addDot(argv[1], inputDot);
-    puts(inputDot);
+    //puts(inputDot);
     convert(inputDot, output);
-    puts(output);
+    //puts(output);
 
     // NFA and DFA convertions
     N = regexToNfa(output);
-    displayNfaAutomata(N);
+    //displayNfaAutomata(N);
     D = nfaToDfa(N);
-    displayDfaAutomata(D);
+    //displayDfaAutomata(D);
+    Dmin = minimize (D);
+
 
     // NFA dot and png files creation
     saveNfaDotFile(N, "afn.dot");
     system("dot -Tpng afn.dot -o afn.png");
-    system("eog afn.png&");
+    //system("eog afn.png&");
 
     // DFA dot and png files creation
-    saveDfaDotFile(D, "afd.dot");
+    saveDfaDotFile(Dmin, "afd.dot");
     system("dot -Tpng afd.dot -o afd.png");
-    system("eog afd.png&");
+    //system("eog afd.png&");
+
+    saveDfaDotFile(Dmin, "afdmin.dot");
+    system("dot -Tpng afdmin.dot -o afdmin.png");
+    system("eog afdmin.png&");    
 
     return 0;
 }
