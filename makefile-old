@@ -1,0 +1,5 @@
+eraf : set.c stack.c nfa.c dfa.c eraf.c;\
+         gcc set.c stack.c nfa.c dfa.c eraf.c -o eraf
+
+limpa  : ;\
+         rm -f *.o eraf\

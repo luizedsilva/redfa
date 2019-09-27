@@ -1,11 +1,4 @@
-//Stack Pointer Structure
-//-----------------------
-typedef struct no *stack;
-typedef struct no
-{
-    void *info;
-    stack next;
-} no;
+#include "stack.h"
 
 void push(stack *T, void *A)
 {

@@ -1,9 +1,35 @@
+#include "structures.h"
+#include "stack.h"
+#include "set.h"
+
 //NFA Automata Functions
 //----------------------
+void insertLink(link **L, char symbol, int state);
+nfa *buildSymbol(char symbol);
+nfa *buildKleene(nfa *A);
+nfa *buildUnion(nfa *A, nfa *B);
+nfa *buildConcat(nfa *A, nfa *B);
+void disposeNfaAutomata(nfa *A);
+void displayNfaAutomata(nfa *A, char *regex);
+int isAlphabet(char c);
+nfa *regexToNfa(char *regex);
+void saveNfaDotFile(nfa *A, char *name);
+
+//NFA Automata Functions
+//----------------------
+
+void insertLink(link **L, char symbol, int state)
+{
+    struct link *n = malloc(sizeof(link));
+    n->state = state;
+    n->symbol = symbol;
+    n->next = *L;
+    *L = n;
+}
+
 nfa *buildSymbol(char symbol)
 {
     nfa *A = malloc(sizeof(nfa));
-    struct link *L = malloc(sizeof(struct link));
     A->nStates = 2;
     A->transitions = malloc(2 * sizeof(struct link *));
     A->transitions[0] = NULL;
@@ -103,30 +129,36 @@ nfa *buildConcat(nfa *A, nfa *B)
     return newA;
 }
 
-void disposeAutomata(nfa *A)
+void disposeNfaAutomata(nfa *A)
 {
     int i;
     for (i = 0; i < A->nStates; i++)
     {
-        struct link *L = A->transitions[i];
+        link *L = A->transitions[i];
         while (L)
         {
-            struct link *temp = L;
+            link *temp = L;
             L = L->next;
             free(temp);
         }
     }
+    free(A->transitions);
     free(A);
 }
 
-void displayNfaAutomata(nfa *A)
+void displayNfaAutomata(nfa *A, char *regex)
 {
     int i;
+    printf("NFA : %s\n", regex);
+    printf("------");
+    for (i = 0; regex[i]; i++)
+       printf ("-");
+    printf("\n");
     printf("nStates = %d\n", A->nStates);
     printf("Transitions:\n");
     for (i = 0; i < A->nStates; i++)
     {
-        struct link *L = A->transitions[i];
+        link *L = A->transitions[i];
         printf("\tState %d : ", i);
         while (L)
         {
@@ -161,7 +193,7 @@ nfa *regexToNfa(char *regex)
             A = pop(&P);
             B = buildKleene(A);
             push(&P, B);
-            disposeAutomata(A);
+            disposeNfaAutomata(A);
         }
         if (c == '.')
         {
@@ -169,8 +201,8 @@ nfa *regexToNfa(char *regex)
             A = pop(&P);
             C = buildConcat(A, B);
             push(&P, C);
-            disposeAutomata(A);
-            disposeAutomata(B);
+            disposeNfaAutomata(A);
+            disposeNfaAutomata(B);
         }
         if (c == '+')
         {
@@ -178,8 +210,8 @@ nfa *regexToNfa(char *regex)
             A = pop(&P);
             C = buildUnion(A, B);
             push(&P, C);
-            disposeAutomata(A);
-            disposeAutomata(B);
+            disposeNfaAutomata(A);
+            disposeNfaAutomata(B);
         }
     }
     return pop(&P);
@@ -210,3 +242,4 @@ void saveNfaDotFile(nfa *A, char *name)
     fprintf(file, "}\n");
     fclose(file);
 }
+

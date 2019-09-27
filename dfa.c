@@ -1,9 +1,32 @@
-#ifndef DEBUG
-#define DEBUG(x)
-#endif
+#include "dfa.h"
+#include "stack.h"
+#include "set.h"
 
 //DFA Automata Functions
 //----------------------
+void insertState(dfaState **D, set *S, int final, int initial)
+{
+    dfaState *st, *cur = *D, *prev = NULL;
+    while (cur)
+    {
+        prev = cur;
+        if (equalSet(cur->nfaStates, S))
+        {
+            return;
+        }
+        cur = cur->next;
+    }
+    st = malloc(sizeof(dfaState));
+    st->final = final;
+    st->initial = initial;
+    st->nfaStates = S;
+    if (prev)
+        prev->next = st;
+    else
+        *D = st;
+}
+
+
 set *eClose(nfa *N, int state)
 {
     int *stack = malloc(sizeof(int) * N->nStates);
@@ -72,7 +95,11 @@ void showDfaStates(dfaState *D)
     printf("[");
     while (D)
     {
+        if (D->initial)
+            printf(">");
         printSet(D->nfaStates, 'i');
+        if (D->final)
+            printf("*");
         D = D->next;
         if (D)
             printf(",");
@@ -94,7 +121,8 @@ int statePosition(dfaState *D, set *state)
     int pos = 0;
     while (D)
     {
-        if (equalSet(D->nfaStates, state))
+        set *st = D->nfaStates;
+        if (equalSet(st, state))
             return pos;
         pos++;
         D = D->next;
@@ -114,14 +142,24 @@ set *getState(dfaState *D, int n)
     }
 }
 
+int nStack(stack S)
+{
+    int n = 0;
+    while (S)
+    {
+        n++;
+        S = S->next;
+    }
+    return n;
+}
+
 dfaState *getDfaStates(nfa *N, int *num)
 {
     set *sigma = getVocabulary(N), *state = eClose(N, 0);
     stack Stack = NULL;
     dfaState *D = NULL;
     int final = inSet(N->nStates - 1, state);
-    DEBUG(printSet(state, 'i');
-          printf(" final = %d\n", final);)
+    DEBUG(printSet(state, 'i'); printf("%c\n", final ? '*' : ' ');)
     sigma = sigma->next; // skip EPSILON symbol
     insertState(&D, state, final, 1);
     push(&Stack, state);
@@ -138,16 +176,18 @@ dfaState *getDfaStates(nfa *N, int *num)
             while (newState)
             {
                 set *newEclose = eClose(N, newState->info);
+                DEBUG(printf("Eclose="); printSet(newEclose, 'i'); printf("\n");)
                 unionSet(&newUnion, newEclose);
                 newState = newState->next;
-                disposeSet(newEclose);
+                //disposeSet(newEclose);
             }
-            disposeSet(newState);
-            if (statePosition(D, newUnion) == -1)
+            //disposeSet(newState);
+            DEBUG(printDelta(state, symbol, newUnion);)
+            int pos = statePosition(D, newUnion);
+            if (pos == -1)
             {
                 final = inSet(N->nStates - 1, newUnion);
-                DEBUG(printSet(newUnion, 'i');
-                      printf(" final = %d\n", final);)
+                DEBUG(printSet(newUnion, 'i'); printf("%c\n", final ? '*' : ' ');)
                 insertState(&D, newUnion, final, 0);
                 (*num)++;
                 push(&Stack, newUnion);
@@ -201,9 +241,14 @@ dfa *nfaToDfa(nfa *N)
     return D;
 }
 
-void displayDfaAutomata(dfa *D)
+void displayDfaAutomata(dfa *D, char *regex)
 {
     int i, j;
+    printf("DFA : %s\n", regex);
+    printf("------");
+    for (i = 0; regex[i]; i++)
+        printf("-");
+    printf("\n");
     printf("nSymbols = %d\n", D->nSymbols);
     printf("Symbols  = \"%s\"\n", D->sigma);
     printf("nStates  = %d\n", D->nStates);
@@ -223,6 +268,21 @@ void displayDfaAutomata(dfa *D)
             printf("%4d", D->transitions[i * D->nSymbols + j]);
         printf("\n");
     }
+}
+
+void disposeDfaAutomata(dfa *D)
+{
+    int i;
+    dfaState *S = D->states;
+    while (S)
+    {
+        set *state = S->nfaStates;
+        disposeSet(state);
+        S = S->next;
+    }
+    free(D->sigma);
+    free(D->transitions);
+    free(D);
 }
 
 dfa *minimize(dfa *D)
@@ -287,30 +347,33 @@ dfa *minimize(dfa *D)
     }
     Dmin->nStates = nGroups;
     Dmin->nSymbols = nSymbols;
-    Dmin->sigma = malloc(nSymbols * sizeof(char)+1);
+    Dmin->sigma = malloc(nSymbols * sizeof(char) + 1);
     for (i = 0; i < nSymbols; i++)
         Dmin->sigma[i] = D->sigma[i];
     Dmin->sigma[i] = 0;
     Dmin->transitions = malloc(Dmin->nStates * Dmin->nSymbols * sizeof(int));
     st = NULL;
-    for (i = 0; i < nGroups; i++) {
+    for (i = 0; i < nGroups; i++)
+    {
         int final = 0;
         int initial = 0;
         L = D->states;
         j = 0;
         state = NULL;
-        while (L) {
-            if (groups[j] == i) {
-               insertSet(&state, j);
-               if (L->final)
-                  final = 1;
-               if (!j)
-                  initial = 1;
+        while (L)
+        {
+            if (groups[j] == i)
+            {
+                insertSet(&state, j);
+                if (L->final)
+                    final = 1;
+                if (!j)
+                    initial = 1;
             }
             L = L->next;
             j++;
         }
-        insertState (&st, state, final, initial);
+        insertState(&st, state, final, initial);
     }
     Dmin->states = st;
     for (i = 0; i < nGroups; i++)
@@ -320,6 +383,9 @@ dfa *minimize(dfa *D)
                 ;
             Dmin->transitions[i * nSymbols + j] = groups[D->transitions[k * nSymbols + j]];
         }
+    free(transitions);
+    free(groups);
+    free(diff);
     return Dmin;
 }
 
@@ -338,7 +404,7 @@ void saveDfaDotFile(dfa *A, char *name)
         else
             fprintf(file, "\ts%d [shape=circle]\n", i);
         if (st->initial)
-           initial = i;
+            initial = i;
         st = st->next;
         i++;
     }

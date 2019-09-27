@@ -1,3 +1,31 @@
+#ifndef __STRUCTS__
+#define __STRUCTS__
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+#define EPSILON '.'
+#define DEBUG(x)
+
+//Stack Pointer Structure
+//-----------------------
+typedef struct no *stack;
+typedef struct no
+{
+    void *info;
+    stack next;
+} no;
+
+//Set structure
+//-------------
+typedef struct set
+{
+    int info;
+    struct set *next;
+} set;
+
 //Link structure
 //--------------
 typedef struct link
@@ -7,14 +35,6 @@ typedef struct link
     struct link *next;
 } link;
 
-void insertLink(link **L, char symbol, int state)
-{
-    struct link *n = malloc(sizeof(link));
-    n->state = state;
-    n->symbol = symbol;
-    n->next = *L;
-    *L = n;
-}
 
 //NFA - Nondeterministic Finite Automata Structure
 //------------------------------------------------
@@ -33,6 +53,7 @@ typedef struct
     link **transitions;
 } nfa;
 
+
 // Dfa state structure
 //--------------------
 typedef struct dfaState
@@ -43,34 +64,14 @@ typedef struct dfaState
     struct dfaState *next;
 } dfaState;
 
-void insertState(dfaState **D, set *S, int final, int initial)
-{
-    dfaState *st, *cur = *D, *prev = NULL;
-    while (cur)
-    {
-        prev = cur;
-        if (equalSet(cur->nfaStates, S))
-        {
-            return;
-        }
-        cur = cur->next;
-    }
-    st = malloc(sizeof(dfaState));
-    st->final = final;
-    st->initial = initial;
-    st->nfaStates = S;
-    if (prev)
-        prev->next = st;
-    else
-        *D = st;
-}
 
 //DFA = Deteministic Finite Automata Structure
 //--------------------------------------------
 //  [ ] nSymbols
 //  [s_0,s_1,...s_{nSymbols-1}] sigma (vocabulary)
 //  [ ] nStates
-//  states -> [final|{0,1,2}|next]->...
+//  states -> [final|initial|{N_1,N_2,...N_n}|next]->...
+//       where N_i = set of corresponding nfa states
 //  transitions (state * nSymbols + i_symbol):
 //  ----------------------------------------
 //               0   1   2  .... nSymbols-1
@@ -79,7 +80,6 @@ void insertState(dfaState **D, set *S, int final, int initial)
 //           1 | x   x             x
 //     (...)
 //   nStates-1 | x   x             x
-//  Initial state = first of nfaStates list
 
 typedef struct
 {
@@ -89,3 +89,4 @@ typedef struct
     dfaState *states;
     int *transitions;
 } dfa;
+#endif

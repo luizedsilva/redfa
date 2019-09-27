@@ -1,28 +1,28 @@
-//Set structure
-//-------------
-typedef struct set
-{
-    int info;
-    struct set *next;
-} set;
+#include "set.h"
 
+//list sort insert
 void insertSet(set **S, int i)
 {
     set *el, *cur = *S, *prev = NULL;
-    while (cur)
+    while (cur && i > cur->info)
     {
         prev = cur;
-        if (cur->info == i)
-            return;
         cur = cur->next;
     }
+    if (cur && i == cur->info)
+        return;
     el = malloc(sizeof(set));
     el->info = i;
-    el->next = NULL;
     if (prev)
+    {
+        el->next = prev->next;
         prev->next = el;
+    }
     else
+    {
+        el->next = *S;
         *S = el;
+    }
 }
 
 void unionSet(set **A, set *B)
@@ -58,26 +58,17 @@ int lengthSet(set *S)
 
 int equalSet(set *A, set *B)
 {
-    if (!A && !B)
-        return 1;
-    if (!A && B)
-        return 0;
-    if (A && !B)
-        return 0;
-    while (A)
+    while (A && B)
     {
-        int found = 0;
-        while (B && !found)
-        {
-            if (A->info == B->info)
-                found = 1;
-            B = B->next;
-        }
-        if (!found)
+        if (A->info != B->info)
             return 0;
         A = A->next;
+        B = B->next;
     }
-    return 1;
+    if (!A && !B)
+        return 1;
+    else
+        return 0;
 }
 
 void printSet(set *S, char T)

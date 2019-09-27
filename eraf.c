@@ -8,15 +8,11 @@
 #include <ctype.h>
 #include <string.h>
 
-#define TAM 100
-#define EPSILON '.'
-#define DEBUG(x)
-
-#include "set.c"
-#include "stack.c"
 #include "structures.h"
-#include "dfa.c"
-#include "nfa.c"
+#include "set.h"
+#include "stack.h"
+#include "dfa.h"
+#include "nfa.h"
 
 // functions to convertion regex to regex in npr
 int prior(char c)
@@ -94,7 +90,7 @@ void addDot(char *in, char *out)
 
 int main(int argc, char **argv)
 {
-    char inputDot[TAM], output[TAM];
+    char *input, *inputDot, *output;
     nfa *N;
     dfa *D, *Dmin;
     if (argc < 2)
@@ -102,22 +98,27 @@ int main(int argc, char **argv)
         printf("Translate Regular Expression on Nondeterministic Finite Automata\n");
         printf("\nUse:%s <RegEx>\n\twhere Regex = Number|Letter|+|*\n", argv[0]);
         printf("\tExample: %s \"1(1+0)*0\"\n", argv[0]);
-        return 1;
+        input = malloc(10 * sizeof(char));
+        strcpy(input, "1(0+1)*0");
+    }
+    else
+    {
+        input = malloc(sizeof(argv[1]) * sizeof(char) + 1);
+        strcpy(input, argv[1]);
     }
     // Regex convertion
-    addDot(argv[1], inputDot);
-    //puts(inputDot);
+    inputDot = malloc(2 * strlen(input) * sizeof(char));
+    output = malloc(2 * strlen(input) * sizeof(char));
+    addDot(input, inputDot);
     convert(inputDot, output);
-    //puts(output);
 
     // NFA and DFA convertions
     N = regexToNfa(output);
-    //displayNfaAutomata(N);
+    displayNfaAutomata(N, output);
     D = nfaToDfa(N);
-    //displayDfaAutomata(D);
-    Dmin = minimize (D);
-    //displayDfaAutomata (Dmin);
-
+    displayDfaAutomata(D, output);
+    Dmin = minimize(D);
+    displayDfaAutomata(Dmin, output);
 
     // NFA dot and png files creation
     saveNfaDotFile(N, "afn.dot");
@@ -129,9 +130,16 @@ int main(int argc, char **argv)
     system("dot -Tpng afd.dot -o afd.png");
     system("eog afd.png&");
 
+    // DFA minimal dot and png files creation
     saveDfaDotFile(Dmin, "afdmin.dot");
     system("dot -Tpng afdmin.dot -o afdmin.png");
-    system("eog afdmin.png&");    
+    system("eog afdmin.png&");
+
+    disposeNfaAutomata(N);
+    disposeDfaAutomata(D);
+    disposeDfaAutomata(Dmin);
+    free(inputDot);
+    free(output);
 
     return 0;
 }

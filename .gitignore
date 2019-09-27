@@ -1,4 +1,7 @@
-er
+eraf
 *.dot
 *.png
+*.o
+*.gv
+
 
