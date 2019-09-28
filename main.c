@@ -1,8 +1,8 @@
-/*--------------------------------------------------
- * Convert Regex to Nondeterminitic Finite Automata
+/*--------------------------------------------------------
+ * Convert Regex to Minimized Determinitic Finite Automata
  * Use + to union, . to concat and * to kleene closure
  * By Luiz Eduardo da Silva
- *---------------------------------------------------*/
+ *--------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     dfa *D, *Dmin;
     if (argc < 2)
     {
-        printf("Translate Regular Expression on Nondeterministic Finite Automata\n");
+        printf("Translate Regular Expression on Deterministic Finite Automata\n");
         printf("\nUse:%s <RegEx>\n\twhere Regex = Number|Letter|+|*\n", argv[0]);
         printf("\tExample: %s \"1(1+0)*0\"\n", argv[0]);
         input = malloc(10 * sizeof(char));

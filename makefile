@@ -4,7 +4,7 @@ CCFLAGS=
 LDFLAGS=
 SOURCES=$(wildcard *.c)
 OBJECTS=$(SOURCES:.c=.o)
-TARGET=eraf
+TARGET=redfa
 
 all: $(TARGET)
 

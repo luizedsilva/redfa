@@ -1,7 +1,8 @@
-eraf
+redfa
 *.dot
 *.png
 *.o
 *.gv
+*.txt
 
 
