@@ -99,7 +99,7 @@ int main(int argc, char **argv)
         printf("\nUse:%s <RegEx>\n\twhere Regex = Number|Letter|+|*\n", argv[0]);
         printf("\tExample: %s \"1(1+0)*0\"\n", argv[0]);
         input = malloc(10 * sizeof(char));
-        strcpy(input, "10*1*0");
+        strcpy(input, "10");
     }
     else
     {

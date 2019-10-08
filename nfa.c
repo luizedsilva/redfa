@@ -119,6 +119,7 @@ nfa *buildConcat(nfa *A, nfa *B)
 void disposeNfaAutomata(nfa *A)
 {
     int i;
+    if (!A) return;
     for (i = 0; i < A->nStates; i++)
     {
         link *L = A->transitions[i];

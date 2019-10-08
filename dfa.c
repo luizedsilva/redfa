@@ -163,7 +163,7 @@ void insertDelta(noDelta **L, int in, char symb, int out)
 
 dfa *nfaToDfa(nfa *N)
 {
-    dfa *D = malloc(sizeof(dfa));
+    dfa *D = (dfa *) malloc(sizeof(dfa));
     noDelta *L = NULL; // store list of transitions
     int nStates = 0;   // number of DFA states
     set *sigma = getVocabulary(N);
@@ -215,7 +215,7 @@ dfa *nfaToDfa(nfa *N)
         sigma = sigma->next;
     }
     D->sigma[D->nSymbols] = 0;
-    D->nStates = nStates;
+    D->nStates = nStates+1;
     D->transitions = malloc(D->nStates * D->nSymbols * sizeof(int));
     while (L)
     {
@@ -262,6 +262,7 @@ void displayDfaAutomata(dfa *D, char *regex)
 void disposeDfaAutomata(dfa *D)
 {
     int i;
+    if (!D) return;
     dfaState *S = D->states;
     while (S)
     {
