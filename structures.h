@@ -89,4 +89,5 @@ typedef struct
     dfaState *states;
     int *transitions;
 } dfa;
+
 #endif

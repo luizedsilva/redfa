@@ -1,6 +1,6 @@
 CC=gcc
 #CCFLAGS=-Wall
-CCFLAGS=
+CCFLAGS=-g
 LDFLAGS=
 SOURCES=$(wildcard *.c)
 OBJECTS=$(SOURCES:.c=.o)
@@ -9,7 +9,7 @@ TARGET=redfa
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS);\
-    $(CC) -o $@ $^ $(LDFLAGS) 
+    $(CC) -g -o $@ $^ $(LDFLAGS) 
 
 %.o: %.c %.h;\
     $(CC) $(CCFLAGS) -c $<

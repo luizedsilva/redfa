@@ -99,7 +99,7 @@ int main(int argc, char **argv)
         printf("\nUse:%s <RegEx>\n\twhere Regex = Number|Letter|+|*\n", argv[0]);
         printf("\tExample: %s \"1(1+0)*0\"\n", argv[0]);
         input = malloc(10 * sizeof(char));
-        strcpy(input, "1(0+1)*0");
+        strcpy(input, "10*1*0");
     }
     else
     {
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
     system("dot -Tpng afd.dot -o afd.png");
     system("eog afd.png&");
 
-    // DFA minimal dot and png files creation
+    //DFA minimal dot and png files creation
     saveDfaDotFile(Dmin, "afdmin.dot");
     system("dot -Tpng afdmin.dot -o afdmin.png");
     system("eog afdmin.png&");

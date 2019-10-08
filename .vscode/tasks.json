@@ -4,31 +4,11 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "gcc build active file",
+            "label": "build C",
             "type": "shell",
             "command": "make",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "type": "shell",
-            "label": "gcc build active file",
-            "command": "/usr/bin/gcc",
-            "args": [
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
-            ],
-            "options": {
-                "cwd": "/usr/bin"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
             "group": "build"
-        }
+        },
+ 
     ]
 }
