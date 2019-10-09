@@ -165,7 +165,7 @@ dfa *nfaToDfa(nfa *N)
 {
     dfa *D = (dfa *) malloc(sizeof(dfa));
     noDelta *L = NULL; // store list of transitions
-    int nStates = 0;   // number of DFA states
+    int nStates = 1;   // number of DFA states
     set *sigma = getVocabulary(N);
     set *state = eClose(N, 0); // Calculate initial DFA state
     stack Stack = NULL;
@@ -215,7 +215,7 @@ dfa *nfaToDfa(nfa *N)
         sigma = sigma->next;
     }
     D->sigma[D->nSymbols] = 0;
-    D->nStates = nStates+1;
+    D->nStates = nStates;
     D->transitions = malloc(D->nStates * D->nSymbols * sizeof(int));
     while (L)
     {
