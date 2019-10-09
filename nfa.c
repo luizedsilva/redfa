@@ -205,11 +205,12 @@ nfa *regexToNfa(char *regex)
     return pop(&P);
 }
 
-void saveNfaDotFile(nfa *A, char *name)
+void saveNfaDotFile(nfa *A, char *name, char *regex)
 {
     int i;
     FILE *file = fopen(name, "wt");
     fprintf(file, "digraph NFA {\n\trankdir=LR\n");
+    fprintf(file, "\tlabel = \"regex = %s\"\n", regex);
     fprintf(file, "\tinitial [shape=point]\n");
     for (i = 0; i < A->nStates - 1; i++)
         fprintf(file, "\ts%d [shape=circle]\n", i);

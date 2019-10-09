@@ -17,6 +17,6 @@ dfa *nfaToDfa(nfa *N);
 void displayDfaAutomata(dfa *D, char *regex);
 void disposeDfaAutomata(dfa *D);
 dfa *minimize(dfa *D);
-void saveDfaDotFile(dfa *A, char *name);
+void saveDfaDotFile(dfa *A, char *name, char*s);
 
 #endif

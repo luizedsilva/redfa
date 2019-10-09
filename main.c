@@ -121,17 +121,17 @@ int main(int argc, char **argv)
     displayDfaAutomata(Dmin, output);
 
     // NFA dot and png files creation
-    saveNfaDotFile(N, "afn.dot");
+    saveNfaDotFile(N, "afn.dot", input);
     system("dot -Tpng afn.dot -o afn.png");
     system("eog afn.png&");
 
     // DFA dot and png files creation
-    saveDfaDotFile(D, "afd.dot");
+    saveDfaDotFile(D, "afd.dot", input);
     system("dot -Tpng afd.dot -o afd.png");
     system("eog afd.png&");
 
     //DFA minimal dot and png files creation
-    saveDfaDotFile(Dmin, "afdmin.dot");
+    saveDfaDotFile(Dmin, "afdmin.dot", input);
     system("dot -Tpng afdmin.dot -o afdmin.png");
     system("eog afdmin.png&");
 

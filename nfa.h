@@ -14,6 +14,6 @@ void disposeNfaAutomata(nfa *A);
 void displayNfaAutomata(nfa *A, char *regex);
 int isAlphabet(char c);
 nfa *regexToNfa(char *regex);
-void saveNfaDotFile(nfa *A, char *name);
+void saveNfaDotFile(nfa *A, char *name, char*);
 
 #endif

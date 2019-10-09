@@ -379,12 +379,13 @@ dfa *minimize(dfa *D)
     return Dmin;
 }
 
-void saveDfaDotFile(dfa *A, char *name)
+void saveDfaDotFile(dfa *A, char *name, char *regex)
 {
     int i, j, initial;
     FILE *file = fopen(name, "wt");
     dfaState *st = A->states;
     fprintf(file, "digraph DFA {\n\trankdir=LR\n");
+    fprintf(file, "\tlabel = \"regex=%s\"\n", regex);    
     fprintf(file, "\tinitial [shape=point]\n");
     i = 0;
     while (st)
