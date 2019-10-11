@@ -3,7 +3,7 @@
 
 #include "structures.h"
 
-void push(stack *T, void *A);
-void *pop(stack *T);
+void push(stack *, void *);
+void *pop(stack *);
 
 #endif

@@ -14,7 +14,7 @@
 #include "dfa.h"
 #include "nfa.h"
 
-// functions to convertion regex to regex in npr
+// functions to convert regex to regex in npr
 int prior(char c)
 {
     switch (c)
@@ -90,56 +90,80 @@ void addDot(char *in, char *out)
 
 int main(int argc, char **argv)
 {
-    char *input, *inputDot, *output;
+    char *input, *inputDot, *inputNPR;
     nfa *N;
     dfa *D, *Dmin;
+    int display = 0, generate = 0, show = 0;
     if (argc < 2)
     {
         printf("Translate Regular Expression on Deterministic Finite Automata\n");
-        printf("\nUse:%s <RegEx>\n\twhere Regex = Number or Letter or '|' or '*'\n", argv[0]);
-        printf("\tExample: %s \"1(1|0)*0\"\n", argv[0]);
+        printf("\nUsage:%s <RegEx> [Options]\n", argv[0]);
+        printf("\nwhere:");
+        printf("\tRegex = Number or Letter or '|' or '*'\n");
+        printf("\nOptions:\n");
+        printf("\t-d display dfa/nfa strutures\n");
+        printf("\t-g generates graph .dot files\n");
+        printf("\t-s show set of corresponding dfa/nfa states\n");                
+        printf("\nExample: %s \"(1|0)*\" -d\n", argv[0]);
         input = malloc(10 * sizeof(char));
-        strcpy(input, "1(1|0)*0");
+        strcpy(input, "(1|0)*");
+        display = 1;
     }
     else
     {
+        int i;
+        for (i = 2; i < argc; i++) {
+            if (argv[i][0] == '-') {
+                switch (argv[i][1]) {
+                    case 'd': display = 1; break;
+                    case 'g': generate = 1; break;
+                    case 's': show = 1; break;
+                }
+            }
+        }
         input = malloc(sizeof(argv[1]) * sizeof(char) + 1);
         strcpy(input, argv[1]);
     }
+
     // Regex convertion
     inputDot = malloc(2 * strlen(input) * sizeof(char));
-    output = malloc(2 * strlen(input) * sizeof(char));
+    inputNPR = malloc(2 * strlen(input) * sizeof(char));
     addDot(input, inputDot);
-    convert(inputDot, output);
+    convert(inputDot, inputNPR);
 
     // NFA and DFA convertions
-    N = regexToNfa(output);
-    displayNfaAutomata(N, input);
+    N = regexToNfa(inputNPR);
     D = nfaToDfa(N);
-    displayDfaAutomata(D, input);
     Dmin = minimize(D);
-    displayDfaAutomata(Dmin, input);
 
-    // NFA dot and png files creation
-    saveNfaDotFile(N, "afn.dot", input);
-    system("dot -Tpng afn.dot -o afn.png");
-    system("eog afn.png&");
+    if (display) {
+       displayNfaAutomata(N, input);    
+       displayDfaAutomata(D, input);
+       displayDfaAutomata(Dmin, input);
+    }
 
-    // DFA dot and png files creation
-    saveDfaDotFile(D, "afd.dot", input, 1);
-    system("dot -Tpng afd.dot -o afd.png");
-    system("eog afd.png&");
+    if (generate) {
+       // NFA dot and png files generation
+       saveNfaDotFile(N, "afn.dot", input);
+       system("dot -Tpng afn.dot -o afn.png");
+       system("eog afn.png&");
 
-    //DFA minimal dot and png files creation
-    saveDfaDotFile(Dmin, "afdmin.dot", input, 1);
-    system("dot -Tpng afdmin.dot -o afdmin.png");
-    system("eog afdmin.png&");
+       // DFA dot and png files generation
+       saveDfaDotFile(D, "afd.dot", input, show);
+       system("dot -Tpng afd.dot -o afd.png");
+       system("eog afd.png&");
+
+       //DFA minimal dot and png files generation
+       saveDfaDotFile(Dmin, "afdmin.dot", input, show);
+       system("dot -Tpng afdmin.dot -o afdmin.png");
+       system("eog afdmin.png&");
+    }
 
     disposeNfaAutomata(N);
     disposeDfaAutomata(D);
     disposeDfaAutomata(Dmin);
     free(inputDot);
-    free(output);
+    free(inputNPR);
 
     return 0;
 }

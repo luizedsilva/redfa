@@ -108,15 +108,6 @@ void showDfaStates(dfaState *D)
     printf("]\n");
 }
 
-// void printDelta(set *stateIn, char symbol, set *stateOut)
-// {
-//     printf("delta(");
-//     printSet(stateIn, 'i');
-//     printf(",%c) = ", symbol);
-//     printSet(stateOut, 'i');
-//     puts("");
-// }
-
 int statePosition(dfaState *D, set *state)
 {
     int pos = 0;
@@ -130,18 +121,6 @@ int statePosition(dfaState *D, set *state)
     }
     return -1;
 }
-
-// set *getState(dfaState *D, int n)
-// {
-//     int pos = 0;
-//     while (D)
-//     {
-//         if (pos == n)
-//             return D->stateSet;
-//         pos++;
-//         D = D->next;
-//     }
-// }
 
 typedef struct noDelta
 {
@@ -247,9 +226,7 @@ void displayDfaAutomata(dfa *D, char *regex)
     printf("Transitions:\n");
     printf("%4c ", ' ');
     for (i = 0; i < D->nSymbols; i++)
-    {
         printf("%4c", D->sigma[i]);
-    }
     printf("\n");
     for (i = 0; i < D->nStates; i++)
     {

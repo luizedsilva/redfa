@@ -3,12 +3,12 @@
 #include "structures.h"
 
 //list sort insert
-void insertSet(set **S, int i);
-void unionSet(set **A, set *B);
-int inSet(int i, set *S);
-int lengthSet(set *S);
-int equalSet(set *A, set *B);
+void insertSet(set **, int);
+void unionSet(set **, set *);
+int inSet(int, set *);
+int lengthSet(set *);
+int equalSet(set *, set *);
 void printSet(FILE *, set *, char);
-void disposeSet(set *S);
+void disposeSet(set *);
 
 #endif

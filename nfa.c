@@ -7,7 +7,7 @@
 
 void insertLink(link **L, char symbol, int state)
 {
-    struct link *n = malloc(sizeof(link));
+    link *n = malloc(sizeof(link));
     n->state = state;
     n->symbol = symbol;
     n->next = *L;
@@ -18,7 +18,7 @@ nfa *buildSymbol(char symbol)
 {
     nfa *A = malloc(sizeof(nfa));
     A->nStates = 2;
-    A->transitions = malloc(2 * sizeof(struct link *));
+    A->transitions = malloc(2 * sizeof(link *));
     A->transitions[0] = NULL;
     A->transitions[1] = NULL;
     insertLink(A->transitions + 0, symbol, 1);
@@ -30,7 +30,7 @@ nfa *buildKleene(nfa *A)
     int i;
     nfa *newA = malloc(sizeof(nfa));
     newA->nStates = A->nStates + 2;
-    newA->transitions = malloc(newA->nStates * sizeof(struct link *));
+    newA->transitions = malloc(newA->nStates * sizeof(link *));
     for (i = 0; i < newA->nStates; i++)
         newA->transitions[i] = NULL;
     insertLink(newA->transitions + 0, EPSILON, 1);
@@ -54,7 +54,7 @@ nfa *buildUnion(nfa *A, nfa *B)
     int i;
     nfa *newA = malloc(sizeof(nfa));
     newA->nStates = A->nStates + B->nStates + 2;
-    newA->transitions = malloc(newA->nStates * sizeof(struct link *));
+    newA->transitions = malloc(newA->nStates * sizeof(link *));
     for (i = 0; i < newA->nStates; i++)
         newA->transitions[i] = NULL;
     insertLink(newA->transitions + 0, EPSILON, 1);
@@ -87,7 +87,7 @@ nfa *buildConcat(nfa *A, nfa *B)
     int i;
     nfa *newA = malloc(sizeof(nfa));
     newA->nStates = A->nStates + B->nStates + 2;
-    newA->transitions = malloc(newA->nStates * sizeof(struct link *));
+    newA->transitions = malloc(newA->nStates * sizeof(link *));
     for (i = 0; i < newA->nStates; i++)
     {
         newA->transitions[i] = NULL;
