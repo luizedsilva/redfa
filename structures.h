@@ -70,7 +70,7 @@ typedef struct dfaState
 //  [ ] nSymbols
 //  [s_0,s_1,...s_{nSymbols-1}] sigma (vocabulary)
 //  [ ] nStates
-//  states -> [final|initial|{N_1,N_2,...N_n}|next]->...
+//  states -> [id|final|initial|{N_1,N_2,...N_n}|next]->...
 //       where N_i = set of corresponding dfa/nfa states
 //  transitions (state * nSymbols + i_symbol):
 //  ----------------------------------------
@@ -81,7 +81,7 @@ typedef struct dfaState
 //     (...)
 //   nStates-1 | x   x             x
 
-typedef struct
+typedef struct dfa
 {
     int nSymbols;
     char *sigma;

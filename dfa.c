@@ -1,3 +1,24 @@
+/*-----------------------------------------------------------------------
+ * redfa - Convert Regex to Minimized Determinitic Finite Automata
+ * Using | to union, . (not digited) to concat and * to kleene closure
+ * By Luiz Eduardo da Silva - 2019
+ * 
+ * This file is part of redfa.
+ *
+ * redfa is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * redfa is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with redfa.  If not, see <https://www.gnu.org/licenses/>
+ *-----------------------------------------------------------------------*/
+
 #include "dfa.h"
 #include "stack.h"
 #include "set.h"
@@ -159,6 +180,7 @@ dfa *nfaToDfa(nfa *N)
     {
         state = pop(&Stack);
         set *S = sigma;
+        in = statePosition(stateList, state);       
         while (S)
         {
             char symbol = S->info;
@@ -166,14 +188,14 @@ dfa *nfaToDfa(nfa *N)
             set *newUnion = NULL;
             while (newState)
             {
+                set *tmp = newState;
                 set *newEclose = eClose(N, newState->info);
                 unionSet(&newUnion, newEclose);
                 newState = newState->next;
                 disposeSet(newEclose);
+                free (tmp);
             }
-            disposeSet (newState);
             final = inSet(N->nStates - 1, newUnion);
-            in = statePosition(stateList, state);
             out = insertState(&stateList, newUnion, final, 0);
             insertDelta(&L, in, symbol, out);
             if (out >= nStates)
@@ -191,8 +213,10 @@ dfa *nfaToDfa(nfa *N)
     int i = 0;
     while (sigma)
     {
+        set *tmp = sigma;
         D->sigma[i++] = sigma->info;
         sigma = sigma->next;
+        free (tmp);
     }
     D->sigma[D->nSymbols] = 0;
     D->nStates = nStates;
