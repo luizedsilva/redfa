@@ -21,7 +21,7 @@ int prior(char c)
     {
     case '(':
         return 1;
-    case '+':
+    case '|':
         return 2;
     case '.':
         return 3;
@@ -39,7 +39,7 @@ void convert(char *infix, char *npr)
         c = tolower(infix[i]);
         if (isAlphabet(c))
             npr[j++] = c;
-        else if (c == '+' || c == '.' || c == '*')
+        else if (c == '|' || c == '.' || c == '*')
         {
             while (top >= 0 && prior(c) <= prior(stack[top]))
                 npr[j++] = stack[top--];
@@ -96,10 +96,10 @@ int main(int argc, char **argv)
     if (argc < 2)
     {
         printf("Translate Regular Expression on Deterministic Finite Automata\n");
-        printf("\nUse:%s <RegEx>\n\twhere Regex = Number|Letter|+|*\n", argv[0]);
-        printf("\tExample: %s \"1(1+0)*0\"\n", argv[0]);
+        printf("\nUse:%s <RegEx>\n\twhere Regex = Number or Letter or '|' or '*'\n", argv[0]);
+        printf("\tExample: %s \"1(1|0)*0\"\n", argv[0]);
         input = malloc(10 * sizeof(char));
-        strcpy(input, "10");
+        strcpy(input, "1(1|0)*0");
     }
     else
     {
@@ -114,11 +114,11 @@ int main(int argc, char **argv)
 
     // NFA and DFA convertions
     N = regexToNfa(output);
-    displayNfaAutomata(N, output);
+    displayNfaAutomata(N, input);
     D = nfaToDfa(N);
-    displayDfaAutomata(D, output);
+    displayDfaAutomata(D, input);
     Dmin = minimize(D);
-    displayDfaAutomata(Dmin, output);
+    displayDfaAutomata(Dmin, input);
 
     // NFA dot and png files creation
     saveNfaDotFile(N, "afn.dot", input);
@@ -126,12 +126,12 @@ int main(int argc, char **argv)
     system("eog afn.png&");
 
     // DFA dot and png files creation
-    saveDfaDotFile(D, "afd.dot", input);
+    saveDfaDotFile(D, "afd.dot", input, 1);
     system("dot -Tpng afd.dot -o afd.png");
     system("eog afd.png&");
 
     //DFA minimal dot and png files creation
-    saveDfaDotFile(Dmin, "afdmin.dot", input);
+    saveDfaDotFile(Dmin, "afdmin.dot", input, 1);
     system("dot -Tpng afdmin.dot -o afdmin.png");
     system("eog afdmin.png&");
 

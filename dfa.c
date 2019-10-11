@@ -11,7 +11,7 @@ int insertState(dfaState **D, set *S, int final, int initial)
     while (cur)
     {
         prev = cur;
-        if (equalSet(cur->nfaStates, S))
+        if (equalSet(cur->stateSet, S))
             return pos;
         cur = cur->next;
         pos++;
@@ -19,7 +19,7 @@ int insertState(dfaState **D, set *S, int final, int initial)
     st = malloc(sizeof(dfaState));
     st->final = final;
     st->initial = initial;
-    st->nfaStates = S;
+    st->stateSet = S;
     st->next = NULL;
     if (prev)
         prev->next = st;
@@ -39,7 +39,7 @@ set *eClose(nfa *N, int state)
         visited[i] = 0;
     insertSet(&S, state);
     stack[++top] = state;
-    // Deep first search - epsilon transitions
+    // Deep first search - epsilon/lambda transitions
     while (top >= 0)
     {
         state = stack[top--];
@@ -98,7 +98,7 @@ void showDfaStates(dfaState *D)
     {
         if (D->initial)
             printf(">");
-        printSet(D->nfaStates, 'i');
+        printSet(stdout, D->stateSet, 'i');
         if (D->final)
             printf("*");
         D = D->next;
@@ -108,21 +108,21 @@ void showDfaStates(dfaState *D)
     printf("]\n");
 }
 
-void printDelta(set *stateIn, char symbol, set *stateOut)
-{
-    printf("delta(");
-    printSet(stateIn, 'i');
-    printf(",%c) = ", symbol);
-    printSet(stateOut, 'i');
-    puts("");
-}
+// void printDelta(set *stateIn, char symbol, set *stateOut)
+// {
+//     printf("delta(");
+//     printSet(stateIn, 'i');
+//     printf(",%c) = ", symbol);
+//     printSet(stateOut, 'i');
+//     puts("");
+// }
 
 int statePosition(dfaState *D, set *state)
 {
     int pos = 0;
     while (D)
     {
-        set *st = D->nfaStates;
+        set *st = D->stateSet;
         if (equalSet(st, state))
             return pos;
         pos++;
@@ -131,17 +131,17 @@ int statePosition(dfaState *D, set *state)
     return -1;
 }
 
-set *getState(dfaState *D, int n)
-{
-    int pos = 0;
-    while (D)
-    {
-        if (pos == n)
-            return D->nfaStates;
-        pos++;
-        D = D->next;
-    }
-}
+// set *getState(dfaState *D, int n)
+// {
+//     int pos = 0;
+//     while (D)
+//     {
+//         if (pos == n)
+//             return D->stateSet;
+//         pos++;
+//         D = D->next;
+//     }
+// }
 
 typedef struct noDelta
 {
@@ -163,9 +163,9 @@ void insertDelta(noDelta **L, int in, char symb, int out)
 
 dfa *nfaToDfa(nfa *N)
 {
-    dfa *D = (dfa *) malloc(sizeof(dfa));
+    dfa *D = malloc(sizeof(dfa));
     noDelta *L = NULL; // store list of transitions
-    int nStates = 1;   // number of DFA states
+    int nStates = 0;   // number of DFA states
     set *sigma = getVocabulary(N);
     set *state = eClose(N, 0); // Calculate initial DFA state
     stack Stack = NULL;
@@ -173,7 +173,8 @@ dfa *nfaToDfa(nfa *N)
     int final, in, out;
     sigma = sigma->next; // skip EPSILON symbol
     final = inSet(N->nStates - 1, state);
-    insertState(&stateList, state, final, 1);
+    insertState(&stateList, state, final, 1); // insert initial state
+    nStates++;  // count initial state
     push(&Stack, state);
     while (Stack)
     {
@@ -233,7 +234,7 @@ dfa *nfaToDfa(nfa *N)
 void displayDfaAutomata(dfa *D, char *regex)
 {
     int i, j;
-    printf("DFA : %s\n", regex);
+    printf("\nDFA : %s\n", regex);
     printf("------");
     for (i = 0; regex[i]; i++)
         printf("-");
@@ -266,7 +267,7 @@ void disposeDfaAutomata(dfa *D)
     dfaState *S = D->states;
     while (S)
     {
-        set *state = S->nfaStates;
+        set *state = S->stateSet;
         disposeSet(state);
         S = S->next;
     }
@@ -285,12 +286,36 @@ dfa *minimize(dfa *D)
     int *transitions = malloc(nStates * sizeof(int));
     int *groups = malloc(nStates * sizeof(int));
     int *diff = malloc(nStates * sizeof(int));
-    int i, j, k, changed, countGroups, nGroups, nDiff;
+    int i, j, k, changed, countGroups, nGroups, nDiff, allFinal;
     i = 0;
+    allFinal = 1;
     while (st)
     {
+        if (!st->final)
+           allFinal = 0;
         groups[i++] = st->final;
         st = st->next;
+    }
+    if (allFinal) {  // All states are final
+        Dmin->nStates = 1;
+        Dmin->nSymbols = nSymbols;
+        Dmin->sigma = malloc(nSymbols * sizeof(char) + 1);
+        for (i = 0; i < nSymbols; i++)
+            Dmin->sigma[i] = D->sigma[i];
+        Dmin->sigma[i] = 0;
+        Dmin->transitions = malloc(Dmin->nSymbols * sizeof(int));
+        state = NULL;
+        for (i = 0; i < D->nStates; i++)
+            insertSet (&state, i);
+        st = NULL;        
+        insertState (&st, state, 1, 1);
+        Dmin->states = st;
+        for (i = 0; i < nSymbols; i++)
+            Dmin->transitions[i] = 0; 
+        free(transitions);
+        free(groups);
+        free(diff);
+        return Dmin;       
     }
     changed = 1;
     nGroups = 2; //nonfinal == 0, final == 1
@@ -379,7 +404,7 @@ dfa *minimize(dfa *D)
     return Dmin;
 }
 
-void saveDfaDotFile(dfa *A, char *name, char *regex)
+void saveDfaDotFile(dfa *A, char *name, char *regex, int showSetState)
 {
     int i, j, initial;
     FILE *file = fopen(name, "wt");
@@ -390,10 +415,23 @@ void saveDfaDotFile(dfa *A, char *name, char *regex)
     i = 0;
     while (st)
     {
-        if (st->final)
-            fprintf(file, "\ts%d [shape=doublecircle]\n", i);
-        else
-            fprintf(file, "\ts%d [shape=circle]\n", i);
+        if (!showSetState) {
+           if (st->final)
+              fprintf(file, "\ts%d [shape=doublecircle]\n", i);
+           else
+              fprintf(file, "\ts%d [shape=circle]\n", i);
+        } else {
+           if (st->final) {
+              fprintf(file, "\ts%d\t[shape = doublecircle label=<\n", i);
+           }
+           else
+              fprintf(file, "\ts%d\t[shape = circle label=<\n", i);
+           fprintf(file, "\t\t<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\">\n");
+           fprintf(file, "\t\t<tr> <td>  <font point-size=\"16\">s<SUB>%d</SUB></font></td> </tr>\n",i);
+           fprintf(file, "\t\t<tr> <td>  <font point-size=\"8\">");
+           printSet (file, st->stateSet, 'i');
+           fprintf(file, "</font></td> </tr>\n\t\t</TABLE>>]\n");
+        }
         if (st->initial)
             initial = i;
         st = st->next;

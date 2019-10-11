@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#define EPSILON '.'
+#define EPSILON '-'
 #define DEBUG(x)
 
 //Stack Pointer Structure
@@ -60,7 +60,7 @@ typedef struct dfaState
 {
     int final;
     int initial;
-    set *nfaStates;
+    set *stateSet;
     struct dfaState *next;
 } dfaState;
 
@@ -71,7 +71,7 @@ typedef struct dfaState
 //  [s_0,s_1,...s_{nSymbols-1}] sigma (vocabulary)
 //  [ ] nStates
 //  states -> [final|initial|{N_1,N_2,...N_n}|next]->...
-//       where N_i = set of corresponding nfa states
+//       where N_i = set of corresponding dfa/nfa states
 //  transitions (state * nSymbols + i_symbol):
 //  ----------------------------------------
 //               0   1   2  .... nSymbols-1

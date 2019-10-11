@@ -8,7 +8,7 @@ void unionSet(set **A, set *B);
 int inSet(int i, set *S);
 int lengthSet(set *S);
 int equalSet(set *A, set *B);
-void printSet(set *S, char T);
+void printSet(FILE *, set *, char);
 void disposeSet(set *S);
 
 #endif

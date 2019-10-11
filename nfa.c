@@ -137,7 +137,7 @@ void disposeNfaAutomata(nfa *A)
 void displayNfaAutomata(nfa *A, char *regex)
 {
     int i;
-    printf("NFA : %s\n", regex);
+    printf("\nNFA : %s\n", regex);
     printf("------");
     for (i = 0; regex[i]; i++)
        printf ("-");
@@ -192,7 +192,7 @@ nfa *regexToNfa(char *regex)
             disposeNfaAutomata(A);
             disposeNfaAutomata(B);
         }
-        if (c == '+')
+        if (c == '|')
         {
             B = pop(&P);
             A = pop(&P);

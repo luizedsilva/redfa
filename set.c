@@ -71,20 +71,20 @@ int equalSet(set *A, set *B)
         return 0;
 }
 
-void printSet(set *S, char T)
+void printSet(FILE * f, set *S, char T)
 {
-    printf("{");
+    fprintf(f, "{");
     while (S)
     {
         if (T == 'i')
-            printf("%d", S->info);
+            fprintf(f, "%d", S->info);
         if (T == 'c')
-            printf("%c", S->info);
+            fprintf(f, "%c", S->info);
         S = S->next;
         if (S)
-            printf(",");
+            fprintf(f,",");
     }
-    printf("}");
+    fprintf(f,"}");
 }
 
 void disposeSet(set *S)
