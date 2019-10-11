@@ -76,6 +76,8 @@ set *eClose(nfa *N, int state)
             L = L->next;
         }
     }
+    free (stack);
+    free (visited);
     return S;
 }
 
@@ -110,23 +112,6 @@ set *delta(nfa *N, set *S, char symbol)
         S = S->next;
     }
     return state;
-}
-
-void showDfaStates(dfaState *D)
-{
-    printf("[");
-    while (D)
-    {
-        if (D->initial)
-            printf(">");
-        printSet(stdout, D->stateSet, 'i');
-        if (D->final)
-            printf("*");
-        D = D->next;
-        if (D)
-            printf(",");
-    }
-    printf("]\n");
 }
 
 int statePosition(dfaState *D, set *state)
@@ -232,33 +217,6 @@ dfa *nfaToDfa(nfa *N)
         free(tmp);
     }
     return D;
-}
-
-void displayDfaAutomata(dfa *D, char *regex)
-{
-    int i, j;
-    printf("\nDFA : %s\n", regex);
-    printf("------");
-    for (i = 0; regex[i]; i++)
-        printf("-");
-    printf("\n");
-    printf("nSymbols = %d\n", D->nSymbols);
-    printf("Symbols  = \"%s\"\n", D->sigma);
-    printf("nStates  = %d\n", D->nStates);
-    printf("States   = ");
-    showDfaStates(D->states);
-    printf("Transitions:\n");
-    printf("%4c ", ' ');
-    for (i = 0; i < D->nSymbols; i++)
-        printf("%4c", D->sigma[i]);
-    printf("\n");
-    for (i = 0; i < D->nStates; i++)
-    {
-        printf("%4d:", i);
-        for (j = 0; j < D->nSymbols; j++)
-            printf("%4d", D->transitions[i * D->nSymbols + j]);
-        printf("\n");
-    }
 }
 
 void disposeDfaAutomata(dfa *D)
@@ -403,6 +361,50 @@ dfa *minimize(dfa *D)
     free(groups);
     free(diff);
     return Dmin;
+}
+
+void showDfaStates(dfaState *D)
+{
+    printf("[");
+    while (D)
+    {
+        if (D->initial)
+            printf(">");
+        printSet(stdout, D->stateSet, 'i');
+        if (D->final)
+            printf("*");
+        D = D->next;
+        if (D)
+            printf(",");
+    }
+    printf("]\n");
+}
+
+void displayDfaAutomata(dfa *D, char *regex)
+{
+    int i, j;
+    printf("\nDFA : %s\n", regex);
+    printf("------");
+    for (i = 0; regex[i]; i++)
+        printf("-");
+    printf("\n");
+    printf("nSymbols = %d\n", D->nSymbols);
+    printf("Symbols  = \"%s\"\n", D->sigma);
+    printf("nStates  = %d\n", D->nStates);
+    printf("States   = ");
+    showDfaStates(D->states);
+    printf("Transitions:\n");
+    printf("%4c ", ' ');
+    for (i = 0; i < D->nSymbols; i++)
+        printf("%4c", D->sigma[i]);
+    printf("\n");
+    for (i = 0; i < D->nStates; i++)
+    {
+        printf("%4d:", i);
+        for (j = 0; j < D->nSymbols; j++)
+            printf("%4d", D->transitions[i * D->nSymbols + j]);
+        printf("\n");
+    }
 }
 
 void saveDfaDotFile(dfa *A, char *name, char *regex, int showSetState)
