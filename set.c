@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------
- * redfa - Convert Regex to Minimized Determinitic Finite Automata
+ * redfa - Converts Regex to minimized deterministic finite automata
  * Using | to union, . (not digited) to concat and * to kleene closure
  * By Luiz Eduardo da Silva - 2019
  * 
