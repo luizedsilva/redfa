@@ -71,4 +71,4 @@ Transitions:
 
 ![afdmin](afdmin.svg)
 
->> -g options use Graphviz (dot) and eog to visualize images
+>> -g option use Graphviz (dot) and eog to visualize images
