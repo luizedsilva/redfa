@@ -9,9 +9,9 @@ Translation regular expression to deterministic finite automata in C
     - Regex = Number or Letter or '|' or '*'
 
 + Options:
-    - \-d  Display dfa/nfa strutures
-    - \-g  Create graph .dot files
-    - \-s  Show set of corresponding dfa/nfa states
+    - -d  Display dfa/nfa strutures
+    - -g  Create graph .dot files
+    - -s  Show set of corresponding dfa/nfa states
 
 ## Example: 
 
@@ -71,11 +71,4 @@ Transitions:
 
 ![afdmin](afdmin.svg)
 
-::: warning
--g options use Graphviz (dot) and eog to visualize images
-:::
-
-::: warning
-*here be dragons*
-:::
-
+>> -g options use Graphviz (dot) and eog to visualize images
