@@ -114,12 +114,12 @@ int main(int argc, char **argv)
         printf("\nwhere:");
         printf("\tRegex = Number or Letter or '|' or '*'\n");
         printf("\nOptions:\n");
-        printf("\t-d display dfa/nfa strutures\n");
-        printf("\t-g generates graph .dot files\n");
-        printf("\t-s show set of corresponding dfa/nfa states\n");                
-        printf("\nExample: %s \"(1|0)*\" -d\n", argv[0]);
+        printf("\t-d\tDisplay dfa/nfa strutures\n");
+        printf("\t-g\tCreate graph .dot files\n");
+        printf("\t-s\tShow set of corresponding dfa/nfa states\n");                
+        printf("\nExample: %s \"(a|b)*\" -d\n", argv[0]);
         input = malloc(10 * sizeof(char));
-        strcpy(input, "(1|0)*");
+        strcpy(input, "(a|b)*");
         display = 1;
     }
     else
@@ -175,6 +175,7 @@ int main(int argc, char **argv)
     disposeNfaAutomata(N);
     disposeDfaAutomata(D);
     disposeDfaAutomata(Dmin);
+    free(input);
     free(inputDot);
     free(inputNPR);
 

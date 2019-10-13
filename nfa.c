@@ -168,11 +168,15 @@ void displayNfaAutomata(nfa *A, char *regex)
     for (i = 0; i < A->nStates; i++)
     {
         link *L = A->transitions[i];
-        printf("\tState %d : ", i);
+        printf("\ts%-2d : ", i);
         while (L)
         {
-            printf("[%c|%d] ", L->symbol, L->state);
+            printf("[%2c|%2d|", L->symbol, L->state);
             L = L->next;
+            if (L)
+               printf(" =]=>");
+            else
+               printf(" /]");
         }
         printf("\n");
     }

@@ -114,19 +114,19 @@ set *delta(nfa *N, set *S, char symbol)
     return state;
 }
 
-int statePosition(dfaState *D, set *state)
-{
-    int pos = 0;
-    while (D)
-    {
-        set *st = D->stateSet;
-        if (equalSet(st, state))
-            return pos;
-        pos++;
-        D = D->next;
-    }
-    return -1;
-}
+// int statePosition(dfaState *D, set *state)
+// {
+//     int pos = 0;
+//     while (D)
+//     {
+//         set *st = D->stateSet;
+//         if (equalSet(st, state))
+//             return pos;
+//         pos++;
+//         D = D->next;
+//     }
+//     return -1;
+// }
 
 typedef struct noDelta
 {
@@ -148,24 +148,35 @@ void insertDelta(noDelta **L, int in, char symb, int out)
 
 dfa *nfaToDfa(nfa *N)
 {
+    struct noPos
+    {
+        int id;
+        set *state;
+    } *pos; // to store id and corresponding state
     dfa *D = malloc(sizeof(dfa));
-    noDelta *L = NULL; // store list of transitions
-    int nStates = 0;   // number of DFA states
+    noDelta *L = NULL; // to store list of transitions
+    int nStates = 0;   // to count number of DFA states
     set *sigma = getVocabulary(N);
-    set *state = eClose(N, 0); // Calculate initial DFA state
+    set *state = eClose(N, 0); // to calculate initial DFA state
     stack Stack = NULL;
     dfaState *stateList = NULL;
     int final, in, out;
-    sigma = sigma->next; // skip EPSILON symbol
+    sigma = sigma->next; // to skip EPSILON symbol
     final = inSet(N->nStates - 1, state);
-    insertState(&stateList, state, final, 1); // insert initial state
-    nStates++;  // count initial state
-    push(&Stack, state);
+    insertState(&stateList, state, final, 1); // to insert initial state
+    nStates++;  // to count initial state
+    pos = malloc (sizeof (struct noPos));
+    pos->id = 0;
+    pos->state = state;
+    push(&Stack, pos);
     while (Stack)
     {
-        state = pop(&Stack);
+        pos = pop(&Stack);
+        state = pos->state;
+        in = pos->id;
         set *S = sigma;
-        in = statePosition(stateList, state);       
+        free(pos);
+        //in = statePosition(stateList, state);       
         while (S)
         {
             char symbol = S->info;
@@ -185,8 +196,11 @@ dfa *nfaToDfa(nfa *N)
             insertDelta(&L, in, symbol, out);
             if (out >= nStates)
             {
+                pos = malloc (sizeof (struct noPos));
+                pos->id = out;
+                pos->state = newUnion;
                 nStates++;
-                push(&Stack, newUnion);
+                push(&Stack, pos);
             }
             S = S->next;
         }
@@ -430,7 +444,7 @@ void saveDfaDotFile(dfa *A, char *name, char *regex, int showSetState)
            else
               fprintf(file, "\ts%d\t[shape = circle label=<\n", i);
            fprintf(file, "\t\t<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\">\n");
-           fprintf(file, "\t\t<tr> <td>  <font point-size=\"16\">s<SUB>%d</SUB></font></td> </tr>\n",i);
+           fprintf(file, "\t\t<tr> <td>  <font point-size=\"20\">s<SUB>%d</SUB></font></td> </tr>\n",i);
            fprintf(file, "\t\t<tr> <td>  <font point-size=\"8\">");
            printSet (file, st->stateSet, 'i');
            fprintf(file, "</font></td> </tr>\n\t\t</TABLE>>]\n");
