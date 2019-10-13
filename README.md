@@ -5,19 +5,19 @@ Translation regular expression to deterministic finite automata in C
 ```
 ./redfa <RegEx> [Options]
 ```
-where:
-    Regex = Number or Letter or '|' or '*'
++ where:
+    - Regex = Number or Letter or '|' or '*'
 
-Options:
-    -d  Display dfa/nfa strutures
-    -g  Create graph .dot files
-    -s  Show set of corresponding dfa/nfa states
++ Options:
+    - \-d  Display dfa/nfa strutures
+    - \-g  Create graph .dot files
+    - \-s  Show set of corresponding dfa/nfa states
 
 ## Example: 
 
     ./redfa "a(a|b)*" -d -g -s
 
-### -d option display
+### -d option display output like this
 
 ```
 NFA : a(a|b)*
@@ -73,5 +73,9 @@ Transitions:
 
 ::: warning
 -g options use Graphviz (dot) and eog to visualize images
+:::
+
+::: warning
+*here be dragons*
 :::
 
