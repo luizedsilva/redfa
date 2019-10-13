@@ -1,8 +1,10 @@
 # redfa
 Translation regular expression to deterministic finite automata in C
 
-Usage:redfa <RegEx> [Options]
-
+## Usage:
+```
+./redfa <RegEx> [Options]
+```
 where:
     Regex = Number or Letter or '|' or '*'
 
@@ -11,11 +13,11 @@ Options:
     -g  Create graph .dot files
     -s  Show set of corresponding dfa/nfa states
 
-# Example: 
+## Example: 
 
     ./redfa "a(a|b)*" -d -g -s
 
-# -d option display
+### -d option display
 
 ```
 NFA : a(a|b)*
@@ -61,13 +63,15 @@ Transitions:
    1:   1   1
    2:   2   2
 ```
-# -g option creates .dot files like this
+### -g option creates .dot files like this
 
 ![afd](afd.svg)
 
-# -g and -s options creates .dot files like this
+### -g and -s options creates .dot files like this
 
 ![afdmin](afdmin.svg)
 
-
+::: warning
+-g options use Graphviz (dot) and eog to visualize images
+:::
 
